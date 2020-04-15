@@ -14,6 +14,8 @@ export default function DayListItem(props) {
 
   });
 
+
+
   const formatSpot = spots => {
     switch (spots) {
       case 0:
