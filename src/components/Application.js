@@ -1,32 +1,62 @@
-// import React from "react";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 
 import "components/Application.scss";
-import DayList from "./DayList";
-const days = [
-  {
-    id: 1,
-    name: "Monday",
-    spots: 2,
-  },
-  {
-    id: 2,
-    name: "Tuesday",
-    spots: 5,
-  },
-  {
-    id: 3,
-    name: "Wednesday",
-    spots: 0,
-  },
-];
+import axios from "axios";
+
+import DayList from "components/DayList";
+import Appointment from "components/Appointment";
+import {
+  getAppointmentsForDay,
+  getInterviewersForDay,
+  getInterview
+} from "helpers/selectors.js";
 
 export default function Application(props) {
-  const [day, setDay] = useState("Monday");
+  const [state, setState] = useState({
+    day: "Monday",
+    days: [],
+    appointments: {}
+  });
+
+  const setDay = day => setState({ ...state, day });
+
+  useEffect(() => {
+    Promise.all([
+      axios.get(`/api/days`),
+      axios.get(`/api/appointments`),
+      axios.get(`/api/interviewers`)
+    ]).then(all => {
+      const days = all[0].data;
+      const appointments = all[1].data;
+      const interviewers = all[2].data;
+      setState(prev => ({
+        ...prev,
+        days,
+        appointments,
+        interviewers
+      }));
+    });
+  }, []);
+
+  const appointmentList = getAppointmentsForDay(state, state.day).map(
+    appointment => {
+      const interview = getInterview(state, appointment.interview);
+      return (
+        <Appointment
+          key={appointment.id}
+          interview={interview}
+          interviewers={getInterviewersForDay(state, state.day)}
+          {...appointment}
+        >
+          <h4 className="interviewers__header text--light">interviewer</h4>
+          <ul className="interviewers__list"></ul>
+        </Appointment>
+      );
+    }
+  );
   return (
     <main className="layout">
       <section className="sidebar">
-        {/* Replace this with the sidebar elements during the "Project Setup & Familiarity" activity. */}
         <img
           className="sidebar--centered"
           src="images/logo.png"
@@ -34,7 +64,9 @@ export default function Application(props) {
         />
         <hr className="sidebar__separator sidebar--centered" />
         <nav className="sidebar__menu">
-          <DayList days={days} day={day} setDay={day => setDay(day)} />
+          <ul>
+            <DayList days={state.days} day={state.day} setDay={setDay} />
+          </ul>
         </nav>
         <img
           className="sidebar__lhl sidebar--centered"
@@ -42,17 +74,7 @@ export default function Application(props) {
           alt="Lighthouse Labs"
         />
       </section>
-      <section className="schedule">
-        {/* Replace this with the schedule elements durint the "The Scheduler" activity. */}
-      </section>
-
-
+      <section className="schedule">{appointmentList}</section>
     </main>
-
-
-
-
   );
-
-
 }
