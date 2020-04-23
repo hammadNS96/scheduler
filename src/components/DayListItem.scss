@@ -2,7 +2,7 @@
 @import "styles/variables.scss";
 
 .day-list {
-  &_item {
+  &__item {
     @include fade;
 
     color: #8395a7;

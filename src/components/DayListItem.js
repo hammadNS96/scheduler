@@ -1,21 +1,12 @@
 import React from "react";
-import classnames from 'classnames';
-import './DayListItem.scss';
+import classNames from "classnames";
+import "./DayListItem.scss";
 
 export default function DayListItem(props) {
-
-  const dayClass = classnames({
-    'day-list_item': true,
-    'day-list_item--selected': props.selected,
-    'day-list_item--full': props.spots === 0
-
-
-
-
+  const dayClass = classNames("day-list__item", {
+    "day-list__item--full": props.spots === 0,
+    "day-list__item--selected": props.selected
   });
-
-
-
   const formatSpot = spots => {
     switch (spots) {
       case 0:
@@ -28,7 +19,11 @@ export default function DayListItem(props) {
     }
   };
   return (
-    <li className={dayClass} onClick={() => props.setDay(props.name)}>
+    <li
+      data-testid="day"
+      className={dayClass}
+      onClick={() => props.setDay(props.name)}
+    >
       <h2 className="text--regular">{props.name}</h2>
       <h3 className="text--light">{formatSpot(props.spots)}</h3>
     </li>
